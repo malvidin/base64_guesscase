@@ -140,8 +140,8 @@ def base64_substrings(inputbytes, split=76, padding_chars=b'='):
             else:
                 be = be[:-2]
         encoded_len = len(be)
-        if split and split_half <= encoded_len:
-            chunk_count = - ( - encoded_len // split_half)  # ceiling division without import math
+        if split:
+            chunk_count = max(2, - ( - encoded_len // split_half))  # ceiling division without import math
             chunk_len = - ( - encoded_len // chunk_count)  # ceiling division without import math
             tmp_list = [ be[k:k+chunk_len] for k in range(0, encoded_len, chunk_len) ]
             out_list.extend(tmp_list)
