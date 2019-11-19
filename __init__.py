@@ -120,6 +120,36 @@ def print_possible_decoding(possible_list, scorers=None, max_len=45, max_count=2
     return sorted_list
 
 
+def base64_substrings(inputbytes, split=76, padding_chars=b'='):
+    # Use split for the maximum number of bytes of Base64 encoded data on a single line
+    split_half = split // 2 if split else 1
+    input_len = len(inputbytes)
+    assert input_len >= 6
+    from base64 import b64encode
+    null = b'\x00'
+    out_list = []
+    for i in range(3):
+        j = i if i is 0 else i + 1
+        padded_bytes = null * i + inputbytes
+        be = b64encode(padded_bytes)
+        # Trim trailing characters that might be impacted by padding, and leading characters from null
+        be = be[j:]
+        if be.endswith(padding_chars):
+            if be.endswith(padding_chars*2):
+                be = be[:-3]
+            else:
+                be = be[:-2]
+        encoded_len = len(be)
+        if split and split_half <= encoded_len:
+            chunk_count = - ( - encoded_len // split_half)  # ceiling division without import math
+            chunk_len = - ( - encoded_len // chunk_count)  # ceiling division without import math
+            tmp_list = [ be[k:k+chunk_len] for k in range(0, encoded_len, chunk_len) ]
+            out_list.extend(tmp_list)
+        else:
+            out_list.append(be)
+    return out_list
+
+
 if __name__ == "__main__":
     guess_list = guesscase(b'AHR0CHM6LY9NAXRODWIUY29TL21HBHZPZGLUL2JHC2U2NF9NDWVZC2NHC2U=')
     if type(guess_list) is list:
